@@ -8,6 +8,8 @@
 namespace FtwSoft\Rundeck\HttpClient;
 
 
+use Psr\Http\Message\ResponseInterface;
+
 interface HttpClientInterface
 {
 
@@ -16,7 +18,7 @@ interface HttpClientInterface
      * @param string $uri
      * @param array  $json
      *
-     * @return mixed
+     * @return ResponseInterface
      */
     public function request($method, $uri, array $json = []);
 
