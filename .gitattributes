@@ -1,0 +1,6 @@
+* text=auto -lf
+*.css linguist-vendored -lf
+*.scss linguist-vendored -lf
+*.js linguist-vendored -lf
+*.php -lf
+CHANGELOG.md export-ignore
