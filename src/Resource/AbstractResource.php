@@ -28,4 +28,12 @@ abstract class AbstractResource
     {
         $this->client = $client;
     }
+
+    /**
+     * @return RundeckClient
+     */
+    public function getClient()
+    {
+        return $this->client;
+    }
 }
