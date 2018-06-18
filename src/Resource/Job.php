@@ -15,6 +15,10 @@ use FtwSoft\Rundeck\EntityFactory\JobExecutionEntityFactory;
 class Job extends AbstractResource
 {
 
+    const LOG_LEVEL_INFO = 'INFO';
+
+    const LOG_LEVEL_DEBUG = 'DEBUG';
+
     /**
      * @param $projectName
      *
@@ -49,7 +53,7 @@ class Job extends AbstractResource
      */
     public function run(
         $jobId,
-        $logLevel = 'INFO',
+        $logLevel = self::LOG_LEVEL_INFO,
         $asUser = null,
         $filter = null,
         \DateTime $runAtTime = null,
