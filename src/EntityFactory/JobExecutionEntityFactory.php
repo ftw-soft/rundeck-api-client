@@ -54,7 +54,7 @@ class JobExecutionEntityFactory
                 $entry['log'],
                 $entry['level'],
                 $entry['user'],
-                $entry['stepctx'],
+                isset($entry['stepctx']) ? $entry['stepctx'] : null,
                 $entry['node']
             );
         }
