@@ -27,8 +27,9 @@ class Guzzle6HttpClient implements HttpClientInterface
      * Guzzle6HttpHandler constructor.
      *
      * @param AuthenticationInterface $auth
+     * @param array $config Custom Guzzle option array
      */
-    public function __construct(AuthenticationInterface $auth)
+    public function __construct(AuthenticationInterface $auth, array $config = [])
     {
         $stack = new HandlerStack();
         $stack->setHandler(new CurlHandler());
@@ -38,7 +39,17 @@ class Guzzle6HttpClient implements HttpClientInterface
             };
         });
 
-        $this->client = new HttpClient(['handler' => $stack]);
+        $config = array_merge([
+            'handler'           => $stack,
+            'headers'           => [
+                'Content-Type'  => 'application/json',
+                'Accept'        => 'application/json',
+            ],
+            'connect_timeout'   => 10,
+            'timeout'           => 10,
+        ], $config);
+
+        $this->client = new HttpClient($config);
     }
 
     /**
@@ -49,13 +60,7 @@ class Guzzle6HttpClient implements HttpClientInterface
     public function request($method, $uri, array $json = [])
     {
         return $this->client->request($method, $uri, [
-            'headers'         => [
-                'Content-Type' => 'application/json',
-                'Accept'       => 'application/json',
-            ],
-            'connect_timeout' => 10,
-            'timeout'         => 10,
-            'json'            => $json
+            'json' => $json
         ]);
     }
 
