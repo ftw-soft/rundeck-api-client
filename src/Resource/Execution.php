@@ -31,14 +31,15 @@ class Execution extends AbstractResource
 
     /**
      * @param string $id
+     * @param array  $parameters
      *
      * @return \FtwSoft\Rundeck\Entity\JobExecutionOutput\OutputEntity
      * @throws \Exception
      * @throws \FtwSoft\Rundeck\Exception\InvalidResourceResponseException
      */
-    public function output($id)
+    public function output($id, array $parameters = [])
     {
-        $response = $this->client->get("execution/{$id}/output");
+        $response = $this->client->get("execution/{$id}/output", $parameters);
 
         $execution = $this->responseToArray($response);
 
