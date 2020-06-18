@@ -113,22 +113,21 @@ class OutputEntity
         $retryBackoff,
         $clisterExec,
         $compacted,
-        array $entries
-    )
-    {
+        $entries
+    ) {
         $this->id = $id;
-        $this->offset = intval($offset);
-        $this->completed = boolval($completed);
-        $this->execCompleted = boolval($execCompleted);
-        $this->hasFailedNodes = boolval($hasFailedNodes);
+        $this->offset = (int)$offset;
+        $this->completed = (bool)$completed;
+        $this->execCompleted = (bool)$execCompleted;
+        $this->hasFailedNodes = (bool)$hasFailedNodes;
         $this->execState = $execState;
         $this->lastModified = $lastModified;
         $this->execDuration = $execDuration;
         $this->percentLoaded = $percentLoaded;
         $this->totalSize = $totalSize;
         $this->retryBackoff = $retryBackoff;
-        $this->clusterExec = boolval($clisterExec);
-        $this->compacted = boolval($compacted);
+        $this->clusterExec = (bool)$clisterExec;
+        $this->compacted = (bool)$compacted;
         $this->entries = $entries;
     }
 

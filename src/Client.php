@@ -8,17 +8,12 @@
 
 namespace FtwSoft\Rundeck;
 
+use Exception;
 use FtwSoft\Rundeck\HttpClient\HttpClientInterface;
 use Psr\Http\Message\ResponseInterface;
 
 class Client
 {
-
-    /**
-     * @var string
-     */
-    private $host;
-
     private $baseUrl;
 
     /**
@@ -32,19 +27,13 @@ class Client
      * @param string              $host
      * @param HttpClientInterface $httpClient
      * @param int                 $apiVersion
-     * @param array               $clientConfig
      */
     public function __construct(
         $host,
         HttpClientInterface $httpClient,
-        $apiVersion = 21,
-        array $clientConfig = []
-    )
-    {
-        $this->host = rtrim($host, '/');
-
-        $this->baseUrl = $this->host . '/api/' . $apiVersion . '/';
-
+        $apiVersion = 21
+    ) {
+        $this->baseUrl = rtrim($host, '/') . '/api/' . $apiVersion . '/';
         $this->httpClient = $httpClient;
     }
 
@@ -54,7 +43,7 @@ class Client
      * @param array  $parameters
      *
      * @return ResponseInterface
-     * @throws \Exception
+     * @throws Exception
      */
     public function request($method, $function, array $parameters = [])
     {
@@ -64,14 +53,12 @@ class Client
                 $this->baseUrl . rtrim($function, '/'),
                 $parameters
             );
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             if (method_exists($exception, 'getResponse')) {
-                $response = $exception->getResponse();
+                return $exception->getResponse();
             }
 
-            if (!isset($response)) {
-                throw $exception;
-            }
+            throw $exception;
         }
 
         return $response;
@@ -79,13 +66,18 @@ class Client
 
     /**
      * @param string $function
+     * @param array  $parameters
      *
      * @return ResponseInterface
-     * @throws \Exception
+     * @throws Exception
      */
-    public function get($function)
+    public function get($function, array $parameters = [])
     {
-        return $this->request('GET', $function);
+        $uri = $function;
+        if ([] !== $parameters) {
+            $uri = sprintf('%s?%s', $function, http_build_query($parameters));
+        }
+        return $this->request('GET', $uri);
     }
 
     /**
@@ -93,7 +85,7 @@ class Client
      * @param array  $parameters
      *
      * @return ResponseInterface
-     * @throws \Exception
+     * @throws Exception
      */
     public function post($function, array $parameters = [])
     {
@@ -105,7 +97,7 @@ class Client
      * @param array  $parameters
      *
      * @return ResponseInterface
-     * @throws \Exception
+     * @throws Exception
      */
     public function delete($function, array $parameters = [])
     {
