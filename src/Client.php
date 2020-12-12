@@ -14,6 +14,9 @@ use Psr\Http\Message\ResponseInterface;
 
 class Client
 {
+    /**
+     * @var string
+     */
     private $baseUrl;
 
     /**
