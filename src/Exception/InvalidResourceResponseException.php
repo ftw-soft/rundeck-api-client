@@ -14,12 +14,12 @@ class InvalidResourceResponseException extends \Exception
 {
 
     /**
-     * @var ResponseInterface
+     * @var ResponseInterface|null
      */
     private $response;
 
     /**
-     * @return ResponseInterface
+     * @return ResponseInterface|null
      */
     public function getResponse()
     {
@@ -29,10 +29,10 @@ class InvalidResourceResponseException extends \Exception
     /**
      * JobExecutionException constructor.
      *
-     * @param ResponseInterface $response
-     * @param string            $message
-     * @param int               $code
-     * @param \Exception|null   $previous
+     * @param ResponseInterface|null $response
+     * @param string                 $message
+     * @param int                    $code
+     * @param \Exception|null        $previous
      */
     public function __construct(ResponseInterface $response = null, $message = "", $code = 0, \Exception $previous = null)
     {

@@ -7,7 +7,6 @@
 
 namespace FtwSoft\Rundeck\Execution;
 
-
 use FtwSoft\Rundeck\Client;
 use FtwSoft\Rundeck\Entity\JobExecutionEntity;
 use FtwSoft\Rundeck\Entity\JobExecutionOutput\OutputEntity;
@@ -17,7 +16,6 @@ use FtwSoft\Rundeck\Resource\Execution as ExecutionResource;
 
 class JobRunner
 {
-
     /**
      * @var JobExecutionEntity
      */
@@ -29,22 +27,22 @@ class JobRunner
     private $client;
 
     /**
-     * @var callable
+     * @var callable|null
      */
     private $onJobStart;
 
     /**
-     * @var callable
+     * @var callable|null
      */
     private $onJobProgress;
 
     /**
-     * @var callable
+     * @var callable|null
      */
     private $onJobFinish;
 
     /**
-     * @var callable
+     * @var callable|null
      */
     private $onJobFailed;
 
@@ -172,7 +170,7 @@ class JobRunner
 
             $percent = floor($executionTime / $averageDuration * 100);
 
-            $this->onJobProgressEvent($this->execution, $percent);
+            $this->onJobProgressEvent($this->execution, (int) $percent);
         }
 
         if ($generateOutput) {
@@ -198,6 +196,7 @@ class JobRunner
 
     /**
      * @param JobExecutionEntity $entity
+     * @return void
      */
     private function onJobStartEvent(JobExecutionEntity $entity)
     {
@@ -209,6 +208,7 @@ class JobRunner
     /**
      * @param JobExecutionEntity $entity
      * @param int                $percent
+     * @return void
      */
     private function onJobProgressEvent(JobExecutionEntity $entity, $percent)
     {
@@ -219,6 +219,7 @@ class JobRunner
 
     /**
      * @param JobExecutionEntity $entity
+     * @return void
      */
     private function onJobFinishEvent(JobExecutionEntity $entity)
     {
@@ -230,6 +231,7 @@ class JobRunner
     /**
      * @param JobExecutionEntity $entity
      * @param \Exception         $exception
+     * @return void
      */
     private function onJobFailedEvent(JobExecutionEntity $entity, \Exception $exception)
     {

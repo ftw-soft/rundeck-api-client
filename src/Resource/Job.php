@@ -20,7 +20,7 @@ class Job extends AbstractResource
     const LOG_LEVEL_DEBUG = 'DEBUG';
 
     /**
-     * @param $projectName
+     * @param string $projectName
      *
      * @return JobEntity[]
      * @throws \Exception
@@ -42,8 +42,8 @@ class Job extends AbstractResource
     /**
      * @param string         $jobId
      * @param string         $logLevel
-     * @param null           $asUser
-     * @param null           $filter
+     * @param string|null    $asUser
+     * @param array|null     $filter
      * @param \DateTime|null $runAtTime
      * @param array          $options
      *

@@ -15,7 +15,7 @@ class Token extends AbstractResource
 {
 
     /**
-     * @param $id
+     * @param string $id
      *
      * @return TokenEntity
      * @throws \Exception

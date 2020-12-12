@@ -16,7 +16,6 @@ use Psr\Http\Message\RequestInterface;
 
 class PasswordAuthentication implements AuthenticationInterface
 {
-
     /**
      * @var string
      */
@@ -33,9 +32,9 @@ class PasswordAuthentication implements AuthenticationInterface
     private $password;
 
     /**
-     * @var CookieJarInterface
+     * @var CookieJarInterface|null
      */
-    private $cookie;
+    private $cookie = null;
 
     /**
      * PasswordAuthentication constructor.

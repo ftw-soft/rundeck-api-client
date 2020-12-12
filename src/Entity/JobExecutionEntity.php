@@ -63,12 +63,12 @@ class JobExecutionEntity
 
 
     /**
-     * @var \DateTime
+     * @var \DateTime|null
      */
     private $dateStarted;
 
     /**
-     * @var \DateTime
+     * @var \DateTime|null
      */
     private $dateEnded;
 
@@ -226,7 +226,7 @@ class JobExecutionEntity
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getDateStarted()
     {
@@ -234,7 +234,7 @@ class JobExecutionEntity
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getDateEnded()
     {

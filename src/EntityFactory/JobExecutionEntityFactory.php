@@ -16,6 +16,11 @@ class JobExecutionEntityFactory
 {
     use StaticClass;
 
+    /**
+     * @param array $jobExecution
+     * @return JobExecutionEntity
+     * @throws \Exception
+     */
     public static function createFromArray(array $jobExecution)
     {
         return new JobExecutionEntity(
