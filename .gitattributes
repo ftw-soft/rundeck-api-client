@@ -4,3 +4,4 @@
 *.js linguist-vendored -lf
 *.php -lf
 CHANGELOG.md export-ignore
+.github/** export-ignore
