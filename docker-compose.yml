@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  rundeck:
+    image: 'rundeck/rundeck:SNAPSHOT'
+    environment:
+      RUNDECK_TOKENS_FILE: /testConfig/rundeck_tokens.txt
+    volumes:
+      - "./tests/Integration/.docker:/testConfig"
+    ports:
+      - 4440:4440

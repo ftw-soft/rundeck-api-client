@@ -9,11 +9,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        php: [8.0, 7.4, 7.3, 7.2, 7.1, 7.0, 5.6]
-        dependency-version: [prefer-lowest, prefer-stable]
+        php: [8.0, 7.4, 7.3, 7.2]
         os: [ubuntu-latest]
 
-    name: php ${{ matrix.php }} - ${{ matrix.dependency-version }} - ${{ matrix.os }}
+    name: php ${{ matrix.php }}
 
     steps:
       - name: Checkout code
@@ -23,8 +22,20 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          coverage: none
 
       - name: Install dependencies
         run: |
-          composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
+          composer update --prefer-dist --no-interaction
+
+      - name: Start Rundeck docker container
+        run: docker-compose up -d
+
+      - name: Wait for docker container to finish building
+        uses: nev7n/wait_for_response@v1
+        with:
+          url: 'http://localhost:4440/'
+          interval: 5000
+          timeout: 90000
+
+      - name: Execute tests
+        run: ./vendor/bin/phpunit

@@ -10,7 +10,7 @@ namespace FtwSoft\Rundeck\Exception;
 
 use Psr\Http\Message\ResponseInterface;
 
-class InvalidResourceResponseException extends \Exception
+class InvalidResourceResponseException extends \Exception implements \FtwSoft\Rundeck\Exception\ResponseInterface
 {
 
     /**
