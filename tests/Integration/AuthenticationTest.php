@@ -41,7 +41,7 @@ class AuthenticationTest extends TestCase
         $this->rundeckApiToken = getenv('RUNDECK_API_TOKEN');
     }
 
-    public function testPasswordAuthentication()
+    public function testPasswordAuthentication(): void
     {
         $httpClient = new HttpClient();
 
@@ -65,10 +65,7 @@ class AuthenticationTest extends TestCase
         $this->testAuthenticatedClient($client);
     }
 
-    /**
-     * @group test
-     */
-    public function testInvalidPasswordAuthentication()
+    public function testInvalidPasswordAuthentication(): void
     {
         $this->expectException(AuthenticationException::class);
         $httpClient = new HttpClient();
@@ -93,7 +90,7 @@ class AuthenticationTest extends TestCase
         $client->get('system/info');
     }
 
-    public function testTokenAuthentication()
+    public function testTokenAuthentication(): void
     {
         $httpClient = new HttpClient();
 
@@ -108,7 +105,7 @@ class AuthenticationTest extends TestCase
         $this->testAuthenticatedClient($client);
     }
 
-    public function testInvalidTokenAuthentication()
+    public function testInvalidTokenAuthentication(): void
     {
         $httpClient = new HttpClient();
 
@@ -124,7 +121,7 @@ class AuthenticationTest extends TestCase
         $this->assertEquals(403, $client->get('system/info')->getStatusCode());
     }
 
-    private function testAuthenticatedClient(Client $client)
+    private function testAuthenticatedClient(Client $client): void
     {
         $systemInfoResponse = $client->get('system/info');
         $systemInfoData = json_decode($systemInfoResponse->getBody()->getContents(), true);
