@@ -98,7 +98,7 @@ class Client
     public function get(string $function, array $parameters = []): ResponseInterface
     {
         $uri = $function;
-        if (!empty($parameters)) {
+        if ([] !== $parameters) {
             $uri = sprintf('%s?%s', $function, http_build_query($parameters));
         }
         return $this->request('GET', $uri);
