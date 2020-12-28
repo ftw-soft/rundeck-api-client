@@ -20,7 +20,8 @@
     "require-dev": {
         "phpunit/phpunit": "^8.5 || ^9.4",
         "guzzlehttp/guzzle": "^7.0",
-        "http-interop/http-factory-guzzle": "^1.0"
+        "http-interop/http-factory-guzzle": "^1.0",
+        "phpstan/phpstan": "^0.12.64"
     },
     "autoload": {
         "psr-4": {
@@ -33,6 +34,7 @@
         }
     },
     "suggest": {
-        "guzzlehttp/guzzle" : "Required ^7.0 version to implement the standard package Http client"
+        "guzzlehttp/guzzle" : "A PSR-18 compatible HTTP Client (^7.0)",
+        "http-interop/http-factory-guzzle" : "PSR-17 compatible HTTP Factories (^1.0)"
     }
 }

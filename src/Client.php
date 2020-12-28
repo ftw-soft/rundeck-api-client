@@ -35,51 +35,31 @@ class Client
     private $streamFactory;
 
     /**
-     * @var AuthenticationInterface|null
+     * @var AuthenticationInterface
      */
-    private $authentication = null;
+    private $authentication;
 
-    /**
-     * Client constructor.
-     *
-     * @param string $host
-     * @param ClientInterface $httpClient
-     * @param RequestFactoryInterface $requestFactory
-     * @param StreamFactoryInterface $streamFactory
-     * @param int $apiVersion
-     */
     public function __construct(
-        $host,
+        string $host,
+        AuthenticationInterface $authentication,
         ClientInterface $httpClient,
         RequestFactoryInterface $requestFactory,
         StreamFactoryInterface $streamFactory,
-        $apiVersion = 21
+        int $apiVersion = 36
     ) {
         $this->baseUrl = rtrim($host, '/') . '/api/' . $apiVersion . '/';
         $this->httpClient = $httpClient;
         $this->requestFactory = $requestFactory;
+        $this->authentication = $authentication;
         $this->streamFactory = $streamFactory;
     }
 
     /**
-     * @param AuthenticationInterface $authentication
-     * @return $this
-     */
-    public function setAuthentication(AuthenticationInterface $authentication)
-    {
-        $this->authentication = $authentication;
-        return $this;
-    }
-
-    /**
-     * @param string $method
-     * @param string $function
-     * @param array $parameters
-     * @return ResponseInterface
      * @throws ClientExceptionInterface
      * @throws InvalidArgumentException
+     * @throws Exception
      */
-    public function request($method, $function, array $parameters = [])
+    public function request(string $method, string $function, array $parameters = []): ResponseInterface
     {
         try {
             $request = $this->requestFactory
@@ -99,10 +79,7 @@ class Client
                     ->withHeader('Content-Type', 'application/json');
             }
 
-            if (null !== $this->authentication) {
-                $request = $this->authentication->authenticate($request);
-            }
-
+            $request = $this->authentication->authenticate($request);
             return $this->httpClient->sendRequest($request);
         } catch (Exception $exception) {
             if ($exception instanceof ExceptionResponseInterface && null !== $exception->getResponse()) {
@@ -114,13 +91,11 @@ class Client
     }
 
     /**
-     * @param string $function
-     * @param array  $parameters
-     *
-     * @return ResponseInterface
+     * @throws ClientExceptionInterface
+     * @throws InvalidArgumentException
      * @throws Exception
      */
-    public function get($function, array $parameters = [])
+    public function get(string $function, array $parameters = []): ResponseInterface
     {
         $uri = $function;
         if (!empty($parameters)) {
@@ -130,27 +105,22 @@ class Client
     }
 
     /**
-     * @param string $function
-     * @param array  $parameters
-     *
-     * @return ResponseInterface
+     * @throws ClientExceptionInterface
+     * @throws InvalidArgumentException
      * @throws Exception
      */
-    public function post($function, array $parameters = [])
+    public function post(string $function, array $parameters = []): ResponseInterface
     {
         return $this->request('POST', $function, $parameters);
     }
 
     /**
-     * @param string $function
-     * @param array  $parameters
-     *
-     * @return ResponseInterface
+     * @throws ClientExceptionInterface
+     * @throws InvalidArgumentException
      * @throws Exception
      */
-    public function delete($function, array $parameters = [])
+    public function delete(string $function, array $parameters = []): ResponseInterface
     {
         return $this->request('DELETE', $function, $parameters);
     }
-
 }

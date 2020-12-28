@@ -3,5 +3,3 @@ parameters:
     checkMissingIterableValueType: false
     paths:
         - src
-    excludes_analyse:
-        - src/EntityFactory/StaticClass.php

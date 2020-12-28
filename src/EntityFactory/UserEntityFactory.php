@@ -7,32 +7,16 @@
 
 namespace FtwSoft\Rundeck\EntityFactory;
 
-
 use FtwSoft\Rundeck\Entity\UserEntity;
 
 class UserEntityFactory
 {
-    use StaticClass;
-
-    /**
-     * @param array $user
-     *
-     * @return UserEntity
-     */
-    public static function createFromArray(array $user)
+    public static function createFromArray(array $user): UserEntity
     {
         return static::createNewUser($user['login'], $user['firstName'], $user['lastName'], $user['email']);
     }
 
-    /**
-     * @param string $login
-     * @param string $firstName
-     * @param string $lastName
-     * @param string $email
-     *
-     * @return UserEntity
-     */
-    public static function createNewUser($login, $firstName, $lastName, $email)
+    public static function createNewUser(string $login, string $firstName, string $lastName, string $email): UserEntity
     {
         return new UserEntity($login, $firstName, $lastName, $email);
     }

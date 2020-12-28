@@ -25,7 +25,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          composer require --dev phpstan/phpstan
           composer update --prefer-stable --prefer-dist --no-interaction
 
       - name: Analyse code

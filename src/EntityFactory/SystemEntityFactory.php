@@ -7,7 +7,6 @@
 
 namespace FtwSoft\Rundeck\EntityFactory;
 
-
 use FtwSoft\Rundeck\Entity\System\AdditionalInfoEntity;
 use FtwSoft\Rundeck\Entity\System\CpuEntity;
 use FtwSoft\Rundeck\Entity\System\CpuLoadAverageEntity;
@@ -25,14 +24,10 @@ use FtwSoft\Rundeck\Entity\System\UptimeEntity;
 
 class SystemEntityFactory
 {
-    use StaticClass;
-
     /**
-     * @param array $system
-     *
-     * @return SystemEntity
+     * @throws \Exception
      */
-    public static function createFromArray(array $system)
+    public static function createFromArray(array $system): SystemEntity
     {
         $timestamp = new TimestampEntity(
             $system['timestamp']['epoch'],
@@ -109,5 +104,4 @@ class SystemEntityFactory
 
         return new SystemEntity($timestamp, $rundeck, $executions, $os, $jvm, $stats, $additional);
     }
-
 }

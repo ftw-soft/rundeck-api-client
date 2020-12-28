@@ -7,7 +7,6 @@
 
 namespace FtwSoft\Rundeck\Authentication;
 
-
 use FtwSoft\Rundeck\Exception\AuthenticationException;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
@@ -53,19 +52,10 @@ class PasswordAuthentication implements AuthenticationInterface
      */
     private $authenticationCookies = null;
 
-    /**
-     * PasswordAuthentication constructor.
-     * @param string $host
-     * @param ClientInterface $httpClient
-     * @param RequestFactoryInterface $requestFactory
-     * @param StreamFactoryInterface $streamFactory
-     * @param string $username
-     * @param string $password
-     */
     public function __construct(
-        $host,
-        $username,
-        $password,
+        string $host,
+        string $username,
+        string $password,
         ClientInterface $httpClient,
         RequestFactoryInterface $requestFactory,
         StreamFactoryInterface $streamFactory
@@ -79,12 +69,10 @@ class PasswordAuthentication implements AuthenticationInterface
     }
 
     /**
-     * @param RequestInterface $request
-     * @return RequestInterface
      * @throws AuthenticationException
      * @throws ClientExceptionInterface
      */
-    public function authenticate(RequestInterface $request)
+    public function authenticate(RequestInterface $request): RequestInterface
     {
         if (is_null($this->authenticationCookies)) {
             $this->authenticationCookies = $this->retrieveCookies();
@@ -94,11 +82,10 @@ class PasswordAuthentication implements AuthenticationInterface
     }
 
     /**
-     * @return string[]
      * @throws AuthenticationException
      * @throws ClientExceptionInterface
      */
-    protected function retrieveCookies()
+    protected function retrieveCookies(): array
     {
         $request = $this->requestFactory
             ->createRequest('POST', $this->host . '/j_security_check')
@@ -112,18 +99,20 @@ class PasswordAuthentication implements AuthenticationInterface
 
         $response = $this->httpClient->sendRequest($request);
 
-        if ($response->getStatusCode() < 400 && $response->hasHeader('Set-Cookie')) {
-            return $this->extractCookies($response);
-        } else {
+        if ($response->getStatusCode() >= 400 || !$response->hasHeader('Set-Cookie')) {
             throw new AuthenticationException('Incorrect credentials');
         }
+
+        // in newer Rundeck versions, we can only detect invalid credentials if it redirects to an error page
+        $headerLocation = $response->getHeader('Location');
+        if (isset($headerLocation[0]) && false !== strpos($headerLocation[0], 'error')) {
+            throw new AuthenticationException('Incorrect credentials');
+        }
+
+        return $this->extractCookies($response);
     }
 
-    /**
-     * @param ResponseInterface $response
-     * @return string[]
-     */
-    private function extractCookies(ResponseInterface $response)
+    private function extractCookies(ResponseInterface $response): array
     {
         $cookies = [];
         foreach ((array) $response->getHeader('Set-Cookie') as $cookie) {

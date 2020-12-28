@@ -7,33 +7,22 @@
 
 namespace FtwSoft\Rundeck\Authentication;
 
-
 use Psr\Http\Message\RequestInterface;
 
 class TokenAuthentication implements AuthenticationInterface
 {
-
     /**
      * @var string
      */
     private $token;
 
-    /**
-     * TokenAuthentication constructor.
-     *
-     * @param string $token
-     */
-    public function __construct($token)
+    public function __construct(string $token)
     {
         $this->token = $token;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function authenticate(RequestInterface $request)
+    public function authenticate(RequestInterface $request): RequestInterface
     {
         return $request->withHeader('X-Rundeck-Auth-Token', $this->token);
     }
-
 }
