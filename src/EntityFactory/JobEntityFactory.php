@@ -7,19 +7,11 @@
 
 namespace FtwSoft\Rundeck\EntityFactory;
 
-
 use FtwSoft\Rundeck\Entity\JobEntity;
 
 class JobEntityFactory
 {
-    use StaticClass;
-
-    /**
-     * @param array $job
-     *
-     * @return JobEntity
-     */
-    public static function createFromArray(array $job)
+    public static function createFromArray(array $job): JobEntity
     {
         return new JobEntity(
             $job['id'],

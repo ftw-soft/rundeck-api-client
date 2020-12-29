@@ -7,21 +7,16 @@
 
 namespace FtwSoft\Rundeck\EntityFactory;
 
-
 use FtwSoft\Rundeck\Entity\TokenEntity;
 use FtwSoft\Rundeck\Exception\EntityException;
 
 class TokenEntityFactory
 {
-    use StaticClass;
-
     /**
-     * @param array $token
-     *
-     * @return TokenEntity
      * @throws EntityException
+     * @throws \Exception
      */
-    public static function createFromArray(array $token)
+    public static function createFromArray(array $token): TokenEntity
     {
         $requiredKeys = ['user', 'id', 'creator', 'expiration', 'roles', 'expired'];
         sort($requiredKeys);
@@ -52,5 +47,4 @@ class TokenEntityFactory
             boolval($token['expired'])
         );
     }
-
 }

@@ -7,16 +7,16 @@
 
 namespace FtwSoft\Rundeck\EntityFactory;
 
-
 use FtwSoft\Rundeck\Entity\JobExecutionEntity;
 use FtwSoft\Rundeck\Entity\JobExecutionOutput\OutputEntity;
 use FtwSoft\Rundeck\Entity\JobExecutionOutput\OutputEntryEntity;
 
 class JobExecutionEntityFactory
 {
-    use StaticClass;
-
-    public static function createFromArray(array $jobExecution)
+    /**
+     * @throws \Exception
+     */
+    public static function createFromArray(array $jobExecution): JobExecutionEntity
     {
         return new JobExecutionEntity(
             $jobExecution['id'],
@@ -39,11 +39,9 @@ class JobExecutionEntityFactory
     }
 
     /**
-     * @param array $output
-     *
-     * @return OutputEntity
+     * @throws \Exception
      */
-    public static function createOutputFromArray(array $output)
+    public static function createOutputFromArray(array $output): OutputEntity
     {
         $entries = [];
 
@@ -76,5 +74,4 @@ class JobExecutionEntityFactory
             $entries
         );
     }
-
 }

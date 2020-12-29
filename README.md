@@ -1,89 +1,75 @@
-Rundeck API client
-==================
+# Rundeck API client
 
-PHP API to access Rundeck API
+A php client to access the Rundeck API, based on the [official documentation](https://docs.rundeck.com/api/rundeck-api.html).
+Not all API functions are represented by default.
 
-Based on documentation at http://rundeck.org/docs/api/index.html
+## Requirements
 
-Api is not complete. Not all of the functions are available
+* PHP 7.2+ with enabled json extension
+* Rundeck 2.1+
 
-Requirements
-============
-PHP 5.6+
+This client is based on [PSR-17](https://www.php-fig.org/psr/psr-17/) and [PSR-18](https://www.php-fig.org/psr/psr-18/)
+and therefore you need a compatible HTTP client and request factories.
 
-Rundeck 2.1+
+We suggest [Guzzle 7+](https://github.com/guzzle/guzzle) and [`http-interop/http-factory-guzzle`](https://github.com/http-interop/http-factory-guzzle):
+```bash
+composer require guzzlehttp/guzzle:^7.0 http-interop/http-factory-guzzle:^1.0
+```
 
-curl-ext form GuzzleHttp client implementation
-
-Suggest to install guzzlehttp/guzzle 6 version to implement the standard http client
-
-Installation
-============
-
-Through the composer
+## Installation
 
 ```bash
 composer require ftw-soft/rundeck-api-client
 ```
 
-To use the standard package's http client implementation you must install GuzzleHttp client
-
-```bash
-composer require guzzlehttp/guzzle:^6.3
-```
-
-Or you could create your own http client
+## Basic client usage
 
 ```php
 <?php
-namespace App\Rundeck;
-
-use FtwSoft\Rundeck\HttpClient\HttpClientInterface;
-
-class MyHttpClient implements HttpClientInterface
-{
-    /**
-     * @inheritDoc
-     */
-    public function request($method, $uri, array $json = []) {
-        // implement your own client
-        // the method could contain GET, POST, DELETE etc.
-        // The uri is using resource/function syntax
-        // Must return \Psr\Http\Message\ResponseInterface instance
-    }
-    
-}
-```
-
-Creating client
-===============
-
-```php
-<?php
-use FtwSoft\Rundeck\ClientFactory;
-
 require_once __DIR__ . '/vendor/autoload.php';
 
-// Client with token authentication
+use FtwSoft\Rundeck\Authentication\PasswordAuthentication;
+use FtwSoft\Rundeck\Authentication\TokenAuthentication;
+use FtwSoft\Rundeck\Client;
+use GuzzleHttp\Client as HttpClient;
+use Http\Factory\Guzzle\RequestFactory;
+use Http\Factory\Guzzle\StreamFactory;
 
-$client = ClientFactory::createClient('https://rundeck-domain.com', 'TOKEN');
+$httpClient = new HttpClient();
 
-// Client with password authentication
-$client = ClientFactory::createClient('https://rundeck-domain.com', 'username', 'password');
+// --- Setup authentication ---
+# Password authentication
+$authentication = new PasswordAuthentication(
+    'https://rundeck.local',
+    'username',
+    'password',
+    $httpClient,
+    new RequestFactory(),
+    new StreamFactory()
+);
 
+# OR Token based authentication
+$authentication = new TokenAuthentication('secret-token');
+
+// --- Initialize client ---
+$client = new Client(
+    'https://rundeck.local',
+    $authentication,
+    $httpClient,
+    new RequestFactory(),
+    new StreamFactory(),
+    36 // optional API version
+);
 
 // Make a request
-
 $response = $client->request('GET', 'projects');
-
 var_dump($response->getBody()->getContents());
-
 ```
 
-Resources
-=========
+## Supported default scenarios
 
-At this time I've created Resource classes for suc Rundeck resources based on API documentation
+This package includes common request scenarios which are called "resources".
+The following resources are currently supported:
 - Execution
 - Job
 - Project
@@ -93,22 +79,19 @@ At this time I've created Resource classes for suc Rundeck resources based on AP
 - Tokens
 - User
 
-This resources implements some of the API functions and creates on class entities based on JSON which represents in
+Each resource includes calls to the API and it's payload and/or response is represented by custom entity classes.
 
 For example
 
 ```php
 <?php
-use FtwSoft\Rundeck\ClientFactory;
-use FtwSoft\Rundeck\Resource\Tokens as TokensResource;
-use FtwSoft\Rundeck\Entity\TokenEntity;
-
 require_once __DIR__ . '/vendor/autoload.php';
 
-// Client with token authentication
+use FtwSoft\Rundeck\Resource\Tokens as TokensResource;
+use FtwSoft\Rundeck\Client;
+use FtwSoft\Rundeck\Entity\TokenEntity;
 
-$client = ClientFactory::createClient('https://rundeck-domain.com', 'TOKEN');
-
+/** @var Client $client */
 $tokensResource = new TokensResource($client);
 
 /** @var TokenEntity[] $tokens */
@@ -124,7 +107,6 @@ foreach ($tokens as $token) {
     echo 'roles: ', implode(', ', $token->getRoles()), PHP_EOL;
     echo 'is expired: ', $token->isExpired() ? 'yes' : 'no', PHP_EOL;
 }
-
 ```
 
-You could also create your own resources and entities for it's result and create a pull request
+Feel free to add your own resources and entities to this package by creating a new [pull request](https://github.com/ftw-soft/rundeck-api-client/pulls).

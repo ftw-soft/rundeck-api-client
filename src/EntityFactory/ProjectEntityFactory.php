@@ -7,19 +7,11 @@
 
 namespace FtwSoft\Rundeck\EntityFactory;
 
-
 use FtwSoft\Rundeck\Entity\ProjectEntity;
 
 class ProjectEntityFactory
 {
-    use StaticClass;
-
-    /**
-     * @param array $project
-     *
-     * @return ProjectEntity
-     */
-    public static function createFromArray(array $project)
+    public static function createFromArray(array $project): ProjectEntity
     {
         return new ProjectEntity(
             $project['name'],
@@ -28,5 +20,4 @@ class ProjectEntityFactory
             isset($project['config']) ? $project['config'] : []
         );
     }
-
 }

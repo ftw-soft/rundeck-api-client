@@ -7,37 +7,28 @@
 
 namespace FtwSoft\Rundeck\Exception;
 
-
+use FtwSoft\Rundeck\Exception\ResponseInterface as ExceptionResponseInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class InvalidResourceResponseException extends \Exception
+class InvalidResourceResponseException extends \Exception implements ExceptionResponseInterface
 {
-
     /**
-     * @var ResponseInterface
+     * @var ResponseInterface|null
      */
     private $response;
 
-    /**
-     * @return ResponseInterface
-     */
-    public function getResponse()
+    public function getResponse(): ?ResponseInterface
     {
         return $this->response;
     }
 
-    /**
-     * JobExecutionException constructor.
-     *
-     * @param ResponseInterface $response
-     * @param string            $message
-     * @param int               $code
-     * @param \Exception|null   $previous
-     */
-    public function __construct(ResponseInterface $response = null, $message = "", $code = 0, \Exception $previous = null)
-    {
+    public function __construct(
+        ResponseInterface $response = null,
+        string $message = "",
+        int $code = 0,
+        \Exception $previous = null
+    ) {
         $this->response = $response;
         parent::__construct($message, $code, $previous);
     }
-    
 }

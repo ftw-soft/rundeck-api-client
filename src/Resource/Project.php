@@ -14,7 +14,7 @@ class Project extends AbstractResource
 {
 
     /**
-     * @param $project
+     * @param string $project
      *
      * @return \FtwSoft\Rundeck\Entity\ProjectEntity
      * @throws \Exception

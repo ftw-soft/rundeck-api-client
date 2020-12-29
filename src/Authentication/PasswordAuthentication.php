@@ -7,20 +7,35 @@
 
 namespace FtwSoft\Rundeck\Authentication;
 
-
 use FtwSoft\Rundeck\Exception\AuthenticationException;
-use GuzzleHttp\Client as GuzzleHttpClient;
-use GuzzleHttp\Cookie\CookieJar;
-use GuzzleHttp\Cookie\CookieJarInterface;
+use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 
 class PasswordAuthentication implements AuthenticationInterface
 {
-
     /**
      * @var string
      */
     private $host;
+
+    /**
+     * @var ClientInterface
+     */
+    private $httpClient;
+
+    /**
+     * @var RequestFactoryInterface
+     */
+    private $requestFactory;
+
+    /**
+     * @var StreamFactoryInterface
+     */
+    private $streamFactory;
 
     /**
      * @var string
@@ -33,66 +48,81 @@ class PasswordAuthentication implements AuthenticationInterface
     private $password;
 
     /**
-     * @var CookieJarInterface
+     * @var string[]|null
      */
-    private $cookie;
+    private $authenticationCookies = null;
 
-    /**
-     * PasswordAuthentication constructor.
-     *
-     * @param string $host
-     * @param string $username
-     * @param string $password
-     */
-    public function __construct($host, $username, $password)
-    {
+    public function __construct(
+        string $host,
+        string $username,
+        string $password,
+        ClientInterface $httpClient,
+        RequestFactoryInterface $requestFactory,
+        StreamFactoryInterface $streamFactory
+    ) {
         $this->host = rtrim($host, '/');
+        $this->httpClient = $httpClient;
+        $this->requestFactory = $requestFactory;
+        $this->streamFactory = $streamFactory;
         $this->username = $username;
         $this->password = $password;
     }
 
     /**
-     * @inheritDoc
-     *
      * @throws AuthenticationException
+     * @throws ClientExceptionInterface
      */
-    public function authenticate(RequestInterface $request)
+    public function authenticate(RequestInterface $request): RequestInterface
     {
-        if (is_null($this->cookie)) {
-            $this->cookie = $this->retrieveCookie();
+        if (is_null($this->authenticationCookies)) {
+            $this->authenticationCookies = $this->retrieveCookies();
         }
 
-        return $this->cookie->withCookieHeader($request);
+        return $request->withHeader('Cookie', implode('; ', $this->authenticationCookies));
     }
 
     /**
-     * @return CookieJarInterface
      * @throws AuthenticationException
+     * @throws ClientExceptionInterface
      */
-    protected function retrieveCookie()
+    protected function retrieveCookies(): array
     {
-        $client = new GuzzleHttpClient(['cookies' => true]);
-
-        $jar = new CookieJar();
-
-        $response = $client->post(
-            $this->host . '/j_security_check',
-            [
-                'cookies' => $jar,
-
-                'form_params' => [
+        $request = $this->requestFactory
+            ->createRequest('POST', $this->host . '/j_security_check')
+            ->withHeader('Content-Type', 'application/x-www-form-urlencoded')
+            ->withBody(
+                $this->streamFactory->createStream(http_build_query([
                     'j_username' => $this->username,
                     'j_password' => $this->password
-                ]
-            ]
-        );
+                ]))
+            );
 
-        if ($response->getStatusCode() === 200) {
-            return $jar;
-        } else {
-            throw new AuthenticationException("Incorrect credentials");
+        $response = $this->httpClient->sendRequest($request);
+
+        if ($response->getStatusCode() >= 400 || !$response->hasHeader('Set-Cookie')) {
+            throw new AuthenticationException('Incorrect credentials');
         }
+
+        // in newer Rundeck versions, we can only detect invalid credentials if it redirects to an error page
+        $headerLocation = $response->getHeader('Location');
+        if (isset($headerLocation[0]) && false !== strpos($headerLocation[0], 'error')) {
+            throw new AuthenticationException('Incorrect credentials');
+        }
+
+        return $this->extractCookies($response);
     }
 
+    private function extractCookies(ResponseInterface $response): array
+    {
+        $cookies = [];
+        foreach ((array) $response->getHeader('Set-Cookie') as $cookie) {
+            if (!preg_match('/^(\w+)=([^;]*)/', $cookie, $matches)) {
+                continue;
+            }
 
+            $cookies[] = $matches[0];
+        }
+
+        return $cookies;
+    }
 }

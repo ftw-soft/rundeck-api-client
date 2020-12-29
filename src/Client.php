@@ -1,16 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: android991
- * Date: 14.02.18
- * Time: 15:44
- */
 
 namespace FtwSoft\Rundeck;
 
 use Exception;
-use FtwSoft\Rundeck\HttpClient\HttpClientInterface;
+use FtwSoft\Rundeck\Authentication\AuthenticationInterface;
+use InvalidArgumentException;
+use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+use FtwSoft\Rundeck\Exception\ResponseInterface as ExceptionResponseInterface;
 
 class Client
 {
@@ -20,61 +20,82 @@ class Client
     private $baseUrl;
 
     /**
-     * @var HttpClientInterface
+     * @var ClientInterface
      */
     private $httpClient;
 
     /**
-     * Client constructor.
-     *
-     * @param string              $host
-     * @param HttpClientInterface $httpClient
-     * @param int                 $apiVersion
+     * @var RequestFactoryInterface
      */
+    private $requestFactory;
+
+    /**
+     * @var StreamFactoryInterface
+     */
+    private $streamFactory;
+
+    /**
+     * @var AuthenticationInterface
+     */
+    private $authentication;
+
     public function __construct(
-        $host,
-        HttpClientInterface $httpClient,
-        $apiVersion = 21
+        string $host,
+        AuthenticationInterface $authentication,
+        ClientInterface $httpClient,
+        RequestFactoryInterface $requestFactory,
+        StreamFactoryInterface $streamFactory,
+        int $apiVersion = 36
     ) {
         $this->baseUrl = rtrim($host, '/') . '/api/' . $apiVersion . '/';
         $this->httpClient = $httpClient;
+        $this->requestFactory = $requestFactory;
+        $this->authentication = $authentication;
+        $this->streamFactory = $streamFactory;
     }
 
     /**
-     * @param string $method
-     * @param string $function
-     * @param array  $parameters
-     *
-     * @return ResponseInterface
+     * @throws ClientExceptionInterface
+     * @throws InvalidArgumentException
      * @throws Exception
      */
-    public function request($method, $function, array $parameters = [])
+    public function request(string $method, string $function, array $parameters = []): ResponseInterface
     {
         try {
-            $response = $this->httpClient->request(
-                $method,
-                $this->baseUrl . rtrim($function, '/'),
-                $parameters
-            );
+            $request = $this->requestFactory
+                ->createRequest($method, $this->baseUrl . rtrim($function, '/'))
+                ->withHeader('Accept', 'application/json');
+
+            if (!empty($parameters)) {
+                $body = json_encode($parameters);
+                if (false === $body) {
+                    throw new InvalidArgumentException(
+                        'Request parameters could not be converted to json: ' . json_last_error_msg()
+                    );
+                }
+
+                $request = $request
+                    ->withBody($this->streamFactory->createStream($body))
+                    ->withHeader('Content-Type', 'application/json');
+            }
+
+            $request = $this->authentication->authenticate($request);
+            return $this->httpClient->sendRequest($request);
         } catch (Exception $exception) {
-            if (method_exists($exception, 'getResponse')) {
+            if ($exception instanceof ExceptionResponseInterface && null !== $exception->getResponse()) {
                 return $exception->getResponse();
             }
 
             throw $exception;
         }
-
-        return $response;
     }
 
     /**
-     * @param string $function
-     * @param array  $parameters
-     *
-     * @return ResponseInterface
+     * @throws ClientExceptionInterface
+     * @throws InvalidArgumentException
      * @throws Exception
      */
-    public function get($function, array $parameters = [])
+    public function get(string $function, array $parameters = []): ResponseInterface
     {
         $uri = $function;
         if ([] !== $parameters) {
@@ -84,27 +105,22 @@ class Client
     }
 
     /**
-     * @param string $function
-     * @param array  $parameters
-     *
-     * @return ResponseInterface
+     * @throws ClientExceptionInterface
+     * @throws InvalidArgumentException
      * @throws Exception
      */
-    public function post($function, array $parameters = [])
+    public function post(string $function, array $parameters = []): ResponseInterface
     {
         return $this->request('POST', $function, $parameters);
     }
 
     /**
-     * @param string $function
-     * @param array  $parameters
-     *
-     * @return ResponseInterface
+     * @throws ClientExceptionInterface
+     * @throws InvalidArgumentException
      * @throws Exception
      */
-    public function delete($function, array $parameters = [])
+    public function delete(string $function, array $parameters = []): ResponseInterface
     {
         return $this->request('DELETE', $function, $parameters);
     }
-
 }

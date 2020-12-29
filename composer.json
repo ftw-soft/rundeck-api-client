@@ -11,19 +11,30 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": "^5.6 || ^7.0 || ^8.0",
-        "psr/http-message": "^1.0"
+        "php": "^7.2 || ^8.0",
+        "ext-json": "*",
+        "psr/http-message": "^1.0",
+        "psr/http-client": "^1.0",
+        "psr/http-factory": "^1.0"
     },
     "require-dev": {
-        "symfony/phpunit-bridge": "^5.2",
-        "guzzlehttp/guzzle": "^6.5"
+        "phpunit/phpunit": "^8.5 || ^9.4",
+        "guzzlehttp/guzzle": "^7.0",
+        "http-interop/http-factory-guzzle": "^1.0",
+        "phpstan/phpstan": "^0.12.64"
     },
     "autoload": {
         "psr-4": {
             "FtwSoft\\Rundeck\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "FtwSoft\\Rundeck\\Tests\\": "tests/"
+        }
+    },
     "suggest": {
-        "guzzlehttp/guzzle" : "Required 6.3+ version to implement the standard package Http client"
+        "guzzlehttp/guzzle" : "A PSR-18 compatible HTTP Client (^7.0)",
+        "http-interop/http-factory-guzzle" : "PSR-17 compatible HTTP Factories (^1.0)"
     }
 }
