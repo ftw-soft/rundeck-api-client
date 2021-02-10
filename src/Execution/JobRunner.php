@@ -131,7 +131,10 @@ class JobRunner
 
         $averageDuration = max(ceil($this->execution->getJob()->getAverageDuration() / 1000), 1);
 
-        while ($this->execution->getStatus() === JobExecutionEntity::STATE_RUNNING) {
+        while (
+            $this->execution->getStatus() === JobExecutionEntity::STATE_RUNNING
+            || $this->execution->getStatus() === JobExecutionEntity::STATE_SCHEDULED
+        ) {
             if ($executionTime > $this->executionTimeout) {
                 $exception = new JobExecutionTimeoutExceededException(
                     "The maximum job execution timeout of {$this->executionTimeout} seconds have been exceeded"
