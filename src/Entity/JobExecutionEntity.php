@@ -16,6 +16,8 @@ class JobExecutionEntity
 
     const STATE_FAILED = 'failed';
 
+    const STATE_SCHEDULED = 'scheduled';
+
     /**
      * @var string
      */
